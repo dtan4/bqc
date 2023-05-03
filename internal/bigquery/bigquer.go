@@ -52,11 +52,11 @@ func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
 		keys = append(keys, r.Name)
 	}
 
-	var r map[string]bigquery.Value
-
 	rows := []map[string]bigquery.Value{}
 
 	for {
+		var r map[string]bigquery.Value
+
 		if err := it.Next(&r); err != nil {
 			if err == iterator.Done {
 				break
