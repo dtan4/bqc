@@ -6,10 +6,21 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/olekukonko/tablewriter"
 
 	"github.com/dtan4/bqc/internal/bigquery"
+)
+
+const (
+	bigqueryConfigFilename = ".bigqueryrc"
+)
+
+var (
+	projectIDConfigRe = regexp.MustCompile(`^project_id = ([a-z0-9-]+)$`)
 )
 
 func main() {
@@ -20,10 +31,17 @@ func main() {
 }
 
 func realMain(args []string) error {
-	if len(args) < 1 {
-		return errors.New("project ID is required")
+	var projectID string
+
+	if len(args) == 0 {
+		projectID = loadProjectIDFromConfig()
+	} else {
+		projectID = args[0]
 	}
-	projectID := args[0]
+
+	if projectID == "" {
+		return errors.New("project ID must be provided")
+	}
 
 	ctx := context.Background()
 
@@ -58,4 +76,31 @@ func realMain(args []string) error {
 	}
 
 	return nil
+}
+
+func loadProjectIDFromConfig() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+
+	filename := filepath.Join(home, bigqueryConfigFilename)
+
+	f, err := os.Open(filename)
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+
+	sc := bufio.NewScanner(f)
+
+	for sc.Scan() {
+		line := strings.TrimSpace(sc.Text())
+
+		if matched := projectIDConfigRe.FindStringSubmatch(line); len(matched) > 1 {
+			return matched[1]
+		}
+	}
+
+	return ""
 }
