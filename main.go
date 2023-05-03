@@ -36,18 +36,18 @@ func realMain(args []string) error {
 	sc := bufio.NewScanner(os.Stdin)
 
 	for sc.Scan() {
-		keys, rows, err := client.RunQuery(ctx, sc.Text())
+		result, err := client.RunQuery(ctx, sc.Text())
 		if err != nil {
 			return fmt.Errorf("run query: %w", err)
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetAutoFormatHeaders(false)
-		table.SetHeader(keys)
+		table.SetHeader(result.Keys)
 
-		for _, r := range rows {
+		for _, r := range result.Rows {
 			vs := []string{}
-			for _, k := range keys {
+			for _, k := range result.Keys {
 				vs = append(vs, fmt.Sprintf("%v", r[k]))
 			}
 

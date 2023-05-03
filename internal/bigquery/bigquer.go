@@ -28,17 +28,22 @@ func (c *Client) Close() error {
 	return c.api.Close()
 }
 
-func (c *Client) RunQuery(ctx context.Context, query string) ([]string, []map[string]bigquery.Value, error) {
+type Result struct {
+	Keys []string
+	Rows []map[string]bigquery.Value
+}
+
+func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
 	q := c.api.Query(query)
 
 	j, err := q.Run(ctx)
 	if err != nil {
-		return nil, nil, fmt.Errorf("run BigQuery job: %w", err)
+		return nil, fmt.Errorf("run BigQuery job: %w", err)
 	}
 
 	it, err := j.Read(ctx)
 	if err != nil {
-		return nil, nil, fmt.Errorf("read BigQuery job result: %w", err)
+		return nil, fmt.Errorf("read BigQuery job result: %w", err)
 	}
 
 	keys := []string{}
@@ -57,11 +62,14 @@ func (c *Client) RunQuery(ctx context.Context, query string) ([]string, []map[st
 				break
 			}
 
-			return nil, nil, fmt.Errorf("load result: %w", err)
+			return nil, fmt.Errorf("load result: %w", err)
 		}
 
 		rows = append(rows, r)
 	}
 
-	return keys, rows, nil
+	return &Result{
+		Keys: keys,
+		Rows: rows,
+	}, nil
 }
