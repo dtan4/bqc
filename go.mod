@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	cloud.google.com/go/bigquery v1.51.0
+	github.com/google/go-cmp v0.5.9
 	github.com/olekukonko/tablewriter v0.0.5
 	google.golang.org/api v0.114.0
 )
@@ -21,7 +22,6 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/flatbuffers v2.0.8+incompatible // indirect
-	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.1 // indirect

@@ -10,9 +10,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/olekukonko/tablewriter"
-
 	"github.com/dtan4/bqc/internal/bigquery"
+	"github.com/dtan4/bqc/internal/renderer"
 )
 
 const (
@@ -53,26 +52,20 @@ func realMain(args []string) error {
 
 	sc := bufio.NewScanner(os.Stdin)
 
+	rdr := &renderer.TableRenderer{}
+
 	for sc.Scan() {
 		result, err := client.RunQuery(ctx, sc.Text())
 		if err != nil {
 			return fmt.Errorf("run query: %w", err)
 		}
 
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetAutoFormatHeaders(false)
-		table.SetHeader(result.Keys)
-
-		for _, r := range result.Rows {
-			vs := []string{}
-			for _, k := range result.Keys {
-				vs = append(vs, fmt.Sprintf("%v", r[k]))
-			}
-
-			table.Append(vs)
+		t, err := rdr.Render(result)
+		if err != nil {
+			return fmt.Errorf("render result: %w", err)
 		}
 
-		table.Render()
+		fmt.Println(t)
 	}
 
 	return nil
