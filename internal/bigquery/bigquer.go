@@ -28,18 +28,23 @@ func (c *Client) Close() error {
 	return c.api.Close()
 }
 
-// FIXME: key order is not guaranteed to be the same as query
-func (c *Client) RunQuery(ctx context.Context, query string) ([]map[string]bigquery.Value, error) {
+func (c *Client) RunQuery(ctx context.Context, query string) ([]string, []map[string]bigquery.Value, error) {
 	q := c.api.Query(query)
 
 	j, err := q.Run(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("run BigQuery job: %w", err)
+		return nil, nil, fmt.Errorf("run BigQuery job: %w", err)
 	}
 
 	it, err := j.Read(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("read BigQuery job result: %w", err)
+		return nil, nil, fmt.Errorf("read BigQuery job result: %w", err)
+	}
+
+	keys := []string{}
+
+	for _, r := range it.Schema {
+		keys = append(keys, r.Name)
 	}
 
 	var r map[string]bigquery.Value
@@ -52,11 +57,11 @@ func (c *Client) RunQuery(ctx context.Context, query string) ([]map[string]bigqu
 				break
 			}
 
-			return nil, fmt.Errorf("load result: %w", err)
+			return nil, nil, fmt.Errorf("load result: %w", err)
 		}
 
 		rows = append(rows, r)
 	}
 
-	return rows, nil
+	return keys, rows, nil
 }

@@ -36,16 +36,9 @@ func realMain(args []string) error {
 	sc := bufio.NewScanner(os.Stdin)
 
 	for sc.Scan() {
-		rows, err := client.RunQuery(ctx, sc.Text())
+		keys, rows, err := client.RunQuery(ctx, sc.Text())
 		if err != nil {
 			return fmt.Errorf("run query: %w", err)
-		}
-		keys := []string{}
-
-		if len(keys) == 0 {
-			for k := range rows[0] { // FIXME: panic here if result was empty
-				keys = append(keys, k)
-			}
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
