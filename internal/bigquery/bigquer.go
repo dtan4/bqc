@@ -13,14 +13,13 @@ type Client struct {
 }
 
 func NewClient(ctx context.Context, projectID string) (*Client, error) {
-	client, err := bigquery.NewClient(ctx, projectID)
+	api, err := bigquery.NewClient(ctx, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("create BigQuery client: %w", err)
 	}
-	defer client.Close()
 
 	return &Client{
-		api: client,
+		api: api,
 	}, nil
 }
 
