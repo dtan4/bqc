@@ -1,11 +1,13 @@
 package renderer
 
 import (
+	"strings"
 	"testing"
 	"time"
 
 	bigqueryapi "cloud.google.com/go/bigquery"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/dtan4/bqc/internal/bigquery"
 )
@@ -39,6 +41,32 @@ func TestTableRender(t *testing.T) {
 +----------+-----+-------------------------------+
 `,
 		},
+		"long text won't be wrapped": {
+			result: &bigquery.Result{
+				Keys: []string{
+					"foo",
+					"bar",
+					"baz",
+					"qux",
+					"quux",
+				},
+				Rows: []map[string]bigqueryapi.Value{
+					{
+						"foo":  "foovalue",
+						"bar":  1,
+						"baz":  time.Date(2023, 5, 3, 12, 34, 56, 0, time.UTC),
+						"qux":  "qux",
+						"quux": "quuuuuu uuuuuuuuuuuuuu uuuuuuuuux",
+					},
+				},
+			},
+			want: `+----------+-----+-------------------------------+-----+-----------------------------------+
+|   foo    | bar |              baz              | qux |               quux                |
++----------+-----+-------------------------------+-----+-----------------------------------+
+| foovalue |   1 | 2023-05-03 12:34:56 +0000 UTC | qux | quuuuuu uuuuuuuuuuuuuu uuuuuuuuux |
++----------+-----+-------------------------------+-----+-----------------------------------+
+`,
+		},
 	}
 
 	for name, tc := range testcases {
@@ -53,7 +81,9 @@ func TestTableRender(t *testing.T) {
 				t.Errorf("want no error, got: %s", err)
 			}
 
-			if diff := cmp.Diff(tc.want, got); diff != "" {
+			if diff := cmp.Diff(tc.want, got, cmpopts.AcyclicTransformer("SplitLines", func(s string) []string {
+				return strings.Split(s, "\n")
+			})); diff != "" {
 				t.Errorf("Render() mismatch (-want +got):\n%s", diff)
 			}
 		})
