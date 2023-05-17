@@ -10,6 +10,17 @@
     "go",
     "google.golang.org/genproto"
   ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true
+    }
+  ],
   "constraints": {
     "go": "1.20"
   }
