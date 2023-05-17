@@ -22,6 +22,7 @@ func (r *TableRenderer) Render(result *bigquery.Result) (string, error) {
 
 	table := tablewriter.NewWriter(&b)
 	table.SetAutoFormatHeaders(false)
+	table.SetAutoWrapText(false)
 	table.SetHeader(result.Keys)
 
 	for _, r := range result.Rows {
