@@ -24,6 +24,10 @@ const (
 
 var (
 	projectIDConfigRe = regexp.MustCompile(`^project_id = ([a-z0-9-]+)$`)
+
+	textStyleDefault = tcell.StyleDefault
+	textStyleSuceess = tcell.StyleDefault.Foreground(tcell.ColorGreenYellow)
+	textStyleError   = tcell.StyleDefault.Foreground(tcell.ColorRed)
 )
 
 func main() {
@@ -58,13 +62,13 @@ func realMain(args []string) error {
 
 	app := tview.NewApplication()
 
-	textArea := tview.NewTextArea().SetTextStyle(tcell.StyleDefault)
+	textArea := tview.NewTextArea().SetTextStyle(textStyleDefault)
 
 	borderTextView := tview.NewTextView().SetText("--- result ---")
-	resultTextView := tview.NewTextView().SetTextStyle(tcell.StyleDefault).SetChangedFunc(func() {
+	resultTextView := tview.NewTextView().SetTextStyle(textStyleDefault).SetChangedFunc(func() {
 		app.Draw()
 	})
-	statusTextView := tview.NewTextView().SetText("").SetChangedFunc(func() {
+	statusTextView := tview.NewTextView().SetTextStyle(textStyleDefault).SetChangedFunc(func() {
 		app.Draw()
 	})
 
@@ -85,7 +89,7 @@ func realMain(args []string) error {
 
 			statusTextView.
 				SetText("running query...").
-				SetTextStyle(tcell.StyleDefault)
+				SetTextStyle(textStyleDefault)
 
 			elapsedSecond := 1
 
@@ -100,7 +104,7 @@ func realMain(args []string) error {
 					case <-ticker.C:
 						statusTextView.
 							SetText(fmt.Sprintf("running query (%ds)...", elapsedSecond)).
-							SetTextStyle(tcell.StyleDefault)
+							SetTextStyle(textStyleDefault)
 						elapsedSecond += 1
 					}
 				}
@@ -114,7 +118,7 @@ func realMain(args []string) error {
 					resultTextView.SetText(err.Error())
 					statusTextView.
 						SetText("[ERROR] cannot run query").
-						SetTextStyle(tcell.StyleDefault.Foreground(tcell.ColorRed))
+						SetTextStyle(textStyleError)
 
 					return
 				}
@@ -124,7 +128,7 @@ func realMain(args []string) error {
 					done <- true
 					statusTextView.
 						SetText("[ERROR] cannot render result").
-						SetTextStyle(tcell.StyleDefault.Foreground(tcell.ColorRed))
+						SetTextStyle(textStyleError)
 
 					return
 				}
@@ -136,7 +140,7 @@ func realMain(args []string) error {
 
 				statusTextView.
 					SetText(fmt.Sprintf("[SUCCESS] %d row(s), took %.2f seconds", len(r.Rows), time.Since(start).Seconds())).
-					SetTextStyle(tcell.StyleDefault.Foreground(tcell.ColorGreenYellow))
+					SetTextStyle(textStyleSuceess)
 			}()
 
 			return nil
