@@ -28,8 +28,9 @@ func (c *Client) Close() error {
 }
 
 type Result struct {
-	Keys []string
-	Rows []map[string]bigquery.Value
+	Keys                []string
+	Rows                []map[string]bigquery.Value
+	TotalBytesProcessed int64
 }
 
 func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
@@ -67,8 +68,37 @@ func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
 		rows = append(rows, r)
 	}
 
+	s := j.LastStatus()
+	if err := s.Err(); err != nil {
+		return nil, fmt.Errorf("get the latest status: %w", err)
+	}
+
 	return &Result{
-		Keys: keys,
-		Rows: rows,
+		Keys:                keys,
+		Rows:                rows,
+		TotalBytesProcessed: s.Statistics.TotalBytesProcessed,
+	}, nil
+}
+
+type DryRunResult struct {
+	TotalBytesProcessed int64
+}
+
+func (c *Client) DryRunQuery(ctx context.Context, query string) (*DryRunResult, error) {
+	q := c.api.Query(query)
+	q.DryRun = true
+
+	j, err := q.Run(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("run BigQuery job: %w", err)
+	}
+
+	s := j.LastStatus()
+	if err := s.Err(); err != nil {
+		return nil, fmt.Errorf("get the latest status: %w", err)
+	}
+
+	return &DryRunResult{
+		TotalBytesProcessed: s.Statistics.TotalBytesProcessed,
 	}, nil
 }
