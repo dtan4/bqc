@@ -104,62 +104,7 @@ func (s *Screen) Run(ctx context.Context) error {
 			switch event.Key() {
 			case tcell.KeyEnter:
 				q := s.textArea.GetText()
-
-				s.statusTextView.
-					SetText("running query...").
-					SetTextStyle(textStyleDefault)
-
-				elapsedSecond := 1
-
-				ticker := time.NewTicker(1 * time.Second)
-				done := make(chan bool)
-
-				go func() {
-					for {
-						select {
-						case <-done:
-							return
-						case <-ticker.C:
-							s.statusTextView.
-								SetText(fmt.Sprintf("running query (%ds)...", elapsedSecond)).
-								SetTextStyle(textStyleDefault)
-							elapsedSecond += 1
-						}
-					}
-				}()
-
-				go func() {
-					start := time.Now()
-					r, err := s.bqClient.RunQuery(ctx, q)
-					if err != nil {
-						done <- true
-						s.resultTextView.SetText(err.Error())
-						s.statusTextView.
-							SetText("[ERROR] cannot run query").
-							SetTextStyle(textStyleError)
-
-						return
-					}
-
-					t, err := s.renderer.Render(r)
-					if err != nil {
-						done <- true
-						s.statusTextView.
-							SetText("[ERROR] cannot render result").
-							SetTextStyle(textStyleError)
-
-						return
-					}
-
-					s.resultTextView.SetText(t)
-					s.resultTextView.ScrollToBeginning()
-
-					done <- true
-
-					s.statusTextView.
-						SetText(fmt.Sprintf("[SUCCESS] %d row(s), took %.2f seconds", len(r.Rows), time.Since(start).Seconds())).
-						SetTextStyle(textStyleSuceess)
-				}()
+				s.runQuery(ctx, q, false)
 
 				return nil
 			default:
@@ -183,4 +128,62 @@ func (s *Screen) Run(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
+	s.statusTextView.
+		SetText("running query...").
+		SetTextStyle(textStyleDefault)
+
+	elapsedSecond := 1
+
+	ticker := time.NewTicker(1 * time.Second)
+	done := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				s.statusTextView.
+					SetText(fmt.Sprintf("running query (%ds)...", elapsedSecond)).
+					SetTextStyle(textStyleDefault)
+				elapsedSecond += 1
+			}
+		}
+	}()
+
+	go func() {
+		start := time.Now()
+		r, err := s.bqClient.RunQuery(ctx, q)
+		if err != nil {
+			done <- true
+			s.resultTextView.SetText(err.Error())
+			s.statusTextView.
+				SetText("[ERROR] cannot run query").
+				SetTextStyle(textStyleError)
+
+			return
+		}
+
+		t, err := s.renderer.Render(r)
+		if err != nil {
+			done <- true
+			s.statusTextView.
+				SetText("[ERROR] cannot render result").
+				SetTextStyle(textStyleError)
+
+			return
+		}
+
+		s.resultTextView.SetText(t)
+		s.resultTextView.ScrollToBeginning()
+
+		done <- true
+
+		s.statusTextView.
+			SetText(fmt.Sprintf("[SUCCESS] %d row(s), took %.2f seconds", len(r.Rows), time.Since(start).Seconds())).
+			SetTextStyle(textStyleSuceess)
+	}()
 }
