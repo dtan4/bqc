@@ -215,7 +215,15 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 			done <- true
 
 			s.statusTextView.
-				SetText(fmt.Sprintf("[SUCCESS] %s%d row(s), took %.2f seconds", msgPrefix, len(r.Rows), time.Since(start).Seconds())).
+				SetText(
+					fmt.Sprintf(
+						"[SUCCESS] %s%d row(s), took %.2f seconds, processed %s of data",
+						msgPrefix,
+						len(r.Rows),
+						time.Since(start).Seconds(),
+						humanize.Bytes(uint64(r.TotalBytesProcessed)),
+					),
+				).
 				SetTextStyle(textStyleSuceess)
 		}
 
