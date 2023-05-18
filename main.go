@@ -9,13 +9,10 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"time"
-
-	"github.com/gdamore/tcell/v2"
-	"github.com/rivo/tview"
 
 	"github.com/dtan4/bqc/internal/bigquery"
 	"github.com/dtan4/bqc/internal/renderer"
+	"github.com/dtan4/bqc/internal/screen"
 )
 
 const (
@@ -24,10 +21,6 @@ const (
 
 var (
 	projectIDConfigRe = regexp.MustCompile(`^project_id = ([a-z0-9-]+)$`)
-
-	textStyleDefault = tcell.StyleDefault
-	textStyleSuceess = tcell.StyleDefault.Foreground(tcell.ColorGreenYellow)
-	textStyleError   = tcell.StyleDefault.Foreground(tcell.ColorRed)
 )
 
 func main() {
@@ -60,117 +53,9 @@ func realMain(args []string) error {
 
 	rdr := &renderer.TableRenderer{}
 
-	app := tview.NewApplication()
+	scr := screen.New(client, rdr)
 
-	textArea := tview.NewTextArea().SetTextStyle(textStyleDefault)
-
-	borderTextView := tview.NewTextView().SetText("--- result ---")
-	resultTextView := tview.NewTextView().SetTextStyle(textStyleDefault).SetChangedFunc(func() {
-		app.Draw()
-	})
-	statusTextView := tview.NewTextView().SetTextStyle(textStyleDefault).SetChangedFunc(func() {
-		app.Draw()
-	})
-	ctrlXTextView := tview.NewTextView().SetTextStyle(textStyleDefault.Bold(true)).SetTextAlign(tview.AlignRight).SetChangedFunc(func() {
-		app.Draw()
-	})
-
-	mainView := tview.NewGrid().
-		SetRows(0, 1, 0, 1).
-		SetColumns(0, 8).
-		AddItem(textArea, 0, 0, 1, 1, 0, 0, true).
-		AddItem(borderTextView, 1, 0, 1, 1, 0, 0, false).
-		AddItem(resultTextView, 2, 0, 1, 1, 0, 0, false).
-		AddItem(statusTextView, 3, 0, 1, 1, 0, 0, false).
-		AddItem(ctrlXTextView, 3, 1, 1, 1, 0, 0, false)
-
-	pages := tview.NewPages().AddAndSwitchToPage("main", mainView, true)
-
-	ctrlXMode := false
-
-	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if ctrlXMode {
-			ctrlXMode = false
-			ctrlXTextView.SetText("")
-
-			switch event.Key() {
-			case tcell.KeyEnter:
-				q := textArea.GetText()
-
-				statusTextView.
-					SetText("running query...").
-					SetTextStyle(textStyleDefault)
-
-				elapsedSecond := 1
-
-				ticker := time.NewTicker(1 * time.Second)
-				done := make(chan bool)
-
-				go func() {
-					for {
-						select {
-						case <-done:
-							return
-						case <-ticker.C:
-							statusTextView.
-								SetText(fmt.Sprintf("running query (%ds)...", elapsedSecond)).
-								SetTextStyle(textStyleDefault)
-							elapsedSecond += 1
-						}
-					}
-				}()
-
-				go func() {
-					start := time.Now()
-					r, err := client.RunQuery(ctx, q)
-					if err != nil {
-						done <- true
-						resultTextView.SetText(err.Error())
-						statusTextView.
-							SetText("[ERROR] cannot run query").
-							SetTextStyle(textStyleError)
-
-						return
-					}
-
-					t, err := rdr.Render(r)
-					if err != nil {
-						done <- true
-						statusTextView.
-							SetText("[ERROR] cannot render result").
-							SetTextStyle(textStyleError)
-
-						return
-					}
-
-					resultTextView.SetText(t)
-					resultTextView.ScrollToBeginning()
-
-					done <- true
-
-					statusTextView.
-						SetText(fmt.Sprintf("[SUCCESS] %d row(s), took %.2f seconds", len(r.Rows), time.Since(start).Seconds())).
-						SetTextStyle(textStyleSuceess)
-				}()
-
-				return nil
-			default:
-				// do nothing
-				return nil
-			}
-		} else {
-			if event.Key() == tcell.KeyCtrlX {
-				ctrlXMode = true
-				ctrlXTextView.SetText("Ctrl-X")
-
-				return nil
-			}
-		}
-
-		return event
-	})
-
-	if err := app.SetRoot(pages, true).EnableMouse(true).Run(); err != nil {
+	if err := scr.Run(ctx); err != nil {
 		return fmt.Errorf("run TUI app: %w", err)
 	}
 
