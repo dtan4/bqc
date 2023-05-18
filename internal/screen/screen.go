@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 
@@ -106,11 +107,17 @@ func (s *Screen) Run(ctx context.Context) error {
 				q := s.textArea.GetText()
 				s.runQuery(ctx, q, false)
 
-				return nil
+			case tcell.KeyRune:
+				switch event.Rune() {
+				case 'd':
+					q := s.textArea.GetText()
+					s.runQuery(ctx, q, true)
+				}
 			default:
 				// do nothing
-				return nil
 			}
+
+			return nil
 		} else {
 			if event.Key() == tcell.KeyCtrlX {
 				s.ctrlXMode = true
@@ -131,8 +138,13 @@ func (s *Screen) Run(ctx context.Context) error {
 }
 
 func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
+	msgPrefix := ""
+	if dryRun {
+		msgPrefix = "[dry-run] "
+	}
+
 	s.statusTextView.
-		SetText("running query...").
+		SetText(fmt.Sprintf("%srunning query...", msgPrefix)).
 		SetTextStyle(textStyleDefault)
 
 	elapsedSecond := 1
@@ -147,7 +159,7 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 				return
 			case <-ticker.C:
 				s.statusTextView.
-					SetText(fmt.Sprintf("running query (%ds)...", elapsedSecond)).
+					SetText(fmt.Sprintf("%srunning query (%ds)...", msgPrefix, elapsedSecond)).
 					SetTextStyle(textStyleDefault)
 				elapsedSecond += 1
 			}
@@ -156,34 +168,58 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 
 	go func() {
 		start := time.Now()
-		r, err := s.bqClient.RunQuery(ctx, q)
-		if err != nil {
-			done <- true
-			s.resultTextView.SetText(err.Error())
-			s.statusTextView.
-				SetText("[ERROR] cannot run query").
-				SetTextStyle(textStyleError)
 
-			return
+		result := ""
+
+		if dryRun {
+			r, err := s.bqClient.DryRunQuery(ctx, q)
+			if err != nil {
+				done <- true
+				s.resultTextView.SetText(err.Error())
+				s.statusTextView.
+					SetText(fmt.Sprintf("[ERROR] %scannot run query", msgPrefix)).
+					SetTextStyle(textStyleError)
+
+				return
+			}
+
+			result = fmt.Sprintf("This query will process %s of data.", humanize.Bytes(uint64(r.TotalBytesProcessed)))
+
+			done <- true
+
+			s.statusTextView.
+				SetText(fmt.Sprintf("[SUCCESS] %stook %.2f seconds", msgPrefix, time.Since(start).Seconds())).
+				SetTextStyle(textStyleSuceess)
+		} else {
+			r, err := s.bqClient.RunQuery(ctx, q)
+			if err != nil {
+				done <- true
+				s.resultTextView.SetText(err.Error())
+				s.statusTextView.
+					SetText(fmt.Sprintf("[ERROR] %scannot run query", msgPrefix)).
+					SetTextStyle(textStyleError)
+
+				return
+			}
+
+			result, err = s.renderer.Render(r)
+			if err != nil {
+				done <- true
+				s.statusTextView.
+					SetText(fmt.Sprintf("[ERROR] %scannot render result", msgPrefix)).
+					SetTextStyle(textStyleError)
+
+				return
+			}
+
+			done <- true
+
+			s.statusTextView.
+				SetText(fmt.Sprintf("[SUCCESS] %s%d row(s), took %.2f seconds", msgPrefix, len(r.Rows), time.Since(start).Seconds())).
+				SetTextStyle(textStyleSuceess)
 		}
 
-		t, err := s.renderer.Render(r)
-		if err != nil {
-			done <- true
-			s.statusTextView.
-				SetText("[ERROR] cannot render result").
-				SetTextStyle(textStyleError)
-
-			return
-		}
-
-		s.resultTextView.SetText(t)
+		s.resultTextView.SetText(result)
 		s.resultTextView.ScrollToBeginning()
-
-		done <- true
-
-		s.statusTextView.
-			SetText(fmt.Sprintf("[SUCCESS] %d row(s), took %.2f seconds", len(r.Rows), time.Since(start).Seconds())).
-			SetTextStyle(textStyleSuceess)
 	}()
 }

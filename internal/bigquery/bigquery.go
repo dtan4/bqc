@@ -72,3 +72,26 @@ func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
 		Rows: rows,
 	}, nil
 }
+
+type DryRunResult struct {
+	TotalBytesProcessed int64
+}
+
+func (c *Client) DryRunQuery(ctx context.Context, query string) (*DryRunResult, error) {
+	q := c.api.Query(query)
+	q.DryRun = true
+
+	j, err := q.Run(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("run BigQuery job: %w", err)
+	}
+
+	s := j.LastStatus()
+	if err := s.Err(); err != nil {
+		return nil, fmt.Errorf("get the latest status: %w", err)
+	}
+
+	return &DryRunResult{
+		TotalBytesProcessed: s.Statistics.TotalBytesProcessed,
+	}, nil
+}
