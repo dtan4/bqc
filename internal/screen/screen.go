@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/atotto/clipboard"
 	"github.com/dustin/go-humanize"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -109,6 +110,9 @@ func (s *Screen) Run(ctx context.Context) error {
 
 			case tcell.KeyRune:
 				switch event.Rune() {
+				case 'c':
+					s.copyResultToClipboard()
+
 				case 'd':
 					q := s.textArea.GetText()
 					s.runQuery(ctx, q, true)
@@ -230,4 +234,16 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 		s.resultTextView.SetText(result)
 		s.resultTextView.ScrollToBeginning()
 	}()
+}
+
+func (s *Screen) copyResultToClipboard() {
+	if err := clipboard.WriteAll(s.resultTextView.GetText(true)); err != nil {
+		s.statusTextView.
+			SetText(fmt.Sprintf("cannot copy result to clipboard: %s", err)).
+			SetTextStyle(textStyleError)
+
+		return
+	}
+
+	s.statusTextView.SetText("copied result to clipboard").SetTextStyle(textStyleSuceess)
 }
