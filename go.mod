@@ -10,7 +10,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/tview v0.0.0-20230511053024-822bd067b165
-	google.golang.org/api v0.122.0
+	google.golang.org/api v0.123.0
 )
 
 require (
