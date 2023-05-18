@@ -71,79 +71,100 @@ func realMain(args []string) error {
 	statusTextView := tview.NewTextView().SetTextStyle(textStyleDefault).SetChangedFunc(func() {
 		app.Draw()
 	})
+	ctrlXTextView := tview.NewTextView().SetTextStyle(textStyleDefault.Bold(true)).SetTextAlign(tview.AlignRight).SetChangedFunc(func() {
+		app.Draw()
+	})
 
 	mainView := tview.NewGrid().
 		SetRows(0, 1, 0, 1).
+		SetColumns(0, 8).
 		AddItem(textArea, 0, 0, 1, 1, 0, 0, true).
 		AddItem(borderTextView, 1, 0, 1, 1, 0, 0, false).
 		AddItem(resultTextView, 2, 0, 1, 1, 0, 0, false).
-		AddItem(statusTextView, 3, 0, 1, 1, 0, 0, false)
+		AddItem(statusTextView, 3, 0, 1, 1, 0, 0, false).
+		AddItem(ctrlXTextView, 3, 1, 1, 1, 0, 0, false)
 
 	pages := tview.NewPages().AddAndSwitchToPage("main", mainView, true)
 
+	ctrlXMode := false
+
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		// Some environments interpret Ctrl+Enter as Ctrl+J
-		if ((event.Key() == tcell.KeyEnter || event.Key() == tcell.KeyCR) && event.Modifiers() == tcell.ModCtrl) ||
-			event.Key() == tcell.KeyCtrlJ {
-			q := textArea.GetText()
+		if ctrlXMode {
+			ctrlXMode = false
+			ctrlXTextView.SetText("")
 
-			statusTextView.
-				SetText("running query...").
-				SetTextStyle(textStyleDefault)
-
-			elapsedSecond := 1
-
-			ticker := time.NewTicker(1 * time.Second)
-			done := make(chan bool)
-
-			go func() {
-				for {
-					select {
-					case <-done:
-						return
-					case <-ticker.C:
-						statusTextView.
-							SetText(fmt.Sprintf("running query (%ds)...", elapsedSecond)).
-							SetTextStyle(textStyleDefault)
-						elapsedSecond += 1
-					}
-				}
-			}()
-
-			go func() {
-				start := time.Now()
-				r, err := client.RunQuery(ctx, q)
-				if err != nil {
-					done <- true
-					resultTextView.SetText(err.Error())
-					statusTextView.
-						SetText("[ERROR] cannot run query").
-						SetTextStyle(textStyleError)
-
-					return
-				}
-
-				t, err := rdr.Render(r)
-				if err != nil {
-					done <- true
-					statusTextView.
-						SetText("[ERROR] cannot render result").
-						SetTextStyle(textStyleError)
-
-					return
-				}
-
-				resultTextView.SetText(t)
-				resultTextView.ScrollToBeginning()
-
-				done <- true
+			switch event.Key() {
+			case tcell.KeyEnter:
+				q := textArea.GetText()
 
 				statusTextView.
-					SetText(fmt.Sprintf("[SUCCESS] %d row(s), took %.2f seconds", len(r.Rows), time.Since(start).Seconds())).
-					SetTextStyle(textStyleSuceess)
-			}()
+					SetText("running query...").
+					SetTextStyle(textStyleDefault)
 
-			return nil
+				elapsedSecond := 1
+
+				ticker := time.NewTicker(1 * time.Second)
+				done := make(chan bool)
+
+				go func() {
+					for {
+						select {
+						case <-done:
+							return
+						case <-ticker.C:
+							statusTextView.
+								SetText(fmt.Sprintf("running query (%ds)...", elapsedSecond)).
+								SetTextStyle(textStyleDefault)
+							elapsedSecond += 1
+						}
+					}
+				}()
+
+				go func() {
+					start := time.Now()
+					r, err := client.RunQuery(ctx, q)
+					if err != nil {
+						done <- true
+						resultTextView.SetText(err.Error())
+						statusTextView.
+							SetText("[ERROR] cannot run query").
+							SetTextStyle(textStyleError)
+
+						return
+					}
+
+					t, err := rdr.Render(r)
+					if err != nil {
+						done <- true
+						statusTextView.
+							SetText("[ERROR] cannot render result").
+							SetTextStyle(textStyleError)
+
+						return
+					}
+
+					resultTextView.SetText(t)
+					resultTextView.ScrollToBeginning()
+
+					done <- true
+
+					statusTextView.
+						SetText(fmt.Sprintf("[SUCCESS] %d row(s), took %.2f seconds", len(r.Rows), time.Since(start).Seconds())).
+						SetTextStyle(textStyleSuceess)
+				}()
+
+				return nil
+			default:
+				// do nothing
+				return nil
+			}
+		} else {
+			if event.Key() == tcell.KeyCtrlX {
+				ctrlXMode = true
+				ctrlXTextView.SetText("Ctrl-X")
+
+				return nil
+			}
 		}
 
 		return event
