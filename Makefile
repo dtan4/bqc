@@ -10,6 +10,10 @@ build:
 clean:
 	rm -rf bin/*
 
+.PHONY: install
+install:
+	go install -ldflags="-s -w"
+
 .PHONY: test
 test:
 	go test -race ./...
