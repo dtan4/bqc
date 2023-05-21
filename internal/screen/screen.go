@@ -11,6 +11,7 @@ import (
 	"github.com/rivo/tview"
 
 	"github.com/dtan4/bqc/internal/bigquery"
+	"github.com/dtan4/bqc/internal/checkpoint"
 	"github.com/dtan4/bqc/internal/renderer"
 )
 
@@ -31,8 +32,9 @@ type Screen struct {
 
 	pages *tview.Pages
 
-	bqClient *bigquery.Client
-	renderer *renderer.TableRenderer
+	bqClient   *bigquery.Client
+	renderer   *renderer.TableRenderer
+	checkpoint *checkpoint.Checkpoint
 
 	ctrlXMode bool
 }
@@ -56,7 +58,7 @@ type Screen struct {
 // +----------------------------------------------------------+
 // | statusTextView                | ctrlXTextView (width: 8) |
 // +----------------------------------------------------------+
-func New(bqClient *bigquery.Client, renderer *renderer.TableRenderer) *Screen {
+func New(bqClient *bigquery.Client, renderer *renderer.TableRenderer, checkpoint *checkpoint.Checkpoint) *Screen {
 	app := tview.NewApplication()
 
 	textArea := tview.NewTextArea().SetTextStyle(textStyleDefault)
@@ -93,11 +95,19 @@ func New(bqClient *bigquery.Client, renderer *renderer.TableRenderer) *Screen {
 		pages:          pages,
 		bqClient:       bqClient,
 		renderer:       renderer,
+		checkpoint:     checkpoint,
 		ctrlXMode:      false,
 	}
 }
 
 func (s *Screen) Run(ctx context.Context) error {
+	q, err := s.checkpoint.Load()
+	if err != nil {
+		// ignore error
+		q = ""
+	}
+	s.textArea.SetText(q, true)
+
 	s.app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if s.ctrlXMode {
 			s.ctrlXMode = false
@@ -136,6 +146,10 @@ func (s *Screen) Run(ctx context.Context) error {
 
 	if err := s.app.SetRoot(s.pages, true).EnableMouse(true).Run(); err != nil {
 		return fmt.Errorf("run TUI app: %w", err)
+	}
+
+	if err := s.checkpoint.Save(s.textArea.GetText(), time.Now()); err != nil {
+		return fmt.Errorf("save checkpoint: %w", err)
 	}
 
 	return nil

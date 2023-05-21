@@ -19,7 +19,7 @@ type Checkpoint struct {
 	mu sync.RWMutex
 }
 
-func NewCheckpoint(filename string) *Checkpoint {
+func New(filename string) *Checkpoint {
 	return &Checkpoint{
 		filename:    filename,
 		lastSavedAt: time.Time{},
