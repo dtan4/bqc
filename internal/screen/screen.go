@@ -114,6 +114,9 @@ func (s *Screen) Run(ctx context.Context) error {
 			s.ctrlXTextView.SetText("")
 
 			switch event.Key() {
+			case tcell.KeyCtrlC:
+				s.app.Stop()
+
 			case tcell.KeyEnter:
 				q := s.textArea.GetText()
 				s.runQuery(ctx, q, false)
@@ -136,6 +139,10 @@ func (s *Screen) Run(ctx context.Context) error {
 			switch event.Key() {
 			case tcell.KeyCtrlB:
 				return tcell.NewEventKey(tcell.KeyLeft, 0, tcell.ModNone)
+
+			case tcell.KeyCtrlC:
+				// disable default shutdown key binding
+				return nil
 
 			case tcell.KeyCtrlF:
 				return tcell.NewEventKey(tcell.KeyRight, 0, tcell.ModNone)
