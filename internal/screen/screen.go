@@ -133,7 +133,20 @@ func (s *Screen) Run(ctx context.Context) error {
 
 			return nil
 		} else {
-			if event.Key() == tcell.KeyCtrlX {
+			switch event.Key() {
+			case tcell.KeyCtrlB:
+				return tcell.NewEventKey(tcell.KeyLeft, 0, tcell.ModNone)
+
+			case tcell.KeyCtrlF:
+				return tcell.NewEventKey(tcell.KeyRight, 0, tcell.ModNone)
+
+			case tcell.KeyCtrlN:
+				return tcell.NewEventKey(tcell.KeyDown, 0, tcell.ModNone)
+
+			case tcell.KeyCtrlP:
+				return tcell.NewEventKey(tcell.KeyUp, 0, tcell.ModNone)
+
+			case tcell.KeyCtrlX:
 				s.ctrlXMode = true
 				s.ctrlXTextView.SetText("Ctrl-X")
 
