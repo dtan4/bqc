@@ -10,7 +10,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/adrg/xdg"
+
 	"github.com/dtan4/bqc/internal/bigquery"
+	"github.com/dtan4/bqc/internal/checkpoint"
 	"github.com/dtan4/bqc/internal/renderer"
 	"github.com/dtan4/bqc/internal/screen"
 )
@@ -21,6 +24,8 @@ const (
 
 var (
 	projectIDConfigRe = regexp.MustCompile(`^project_id = ([a-z0-9-]+)$`)
+
+	dataDir = filepath.Join(xdg.DataHome, "bqc")
 )
 
 func main() {
@@ -53,7 +58,9 @@ func realMain(args []string) error {
 
 	rdr := &renderer.TableRenderer{}
 
-	scr := screen.New(client, rdr)
+	ckpt := checkpoint.New(filepath.Join(dataDir, "checkpoint"))
+
+	scr := screen.New(client, rdr, ckpt)
 
 	if err := scr.Run(ctx); err != nil {
 		return fmt.Errorf("run TUI app: %w", err)
