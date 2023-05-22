@@ -61,10 +61,10 @@ type Screen struct {
 func New(bqClient *bigquery.Client, renderer *renderer.TableRenderer, checkpoint *checkpoint.Checkpoint) *Screen {
 	app := tview.NewApplication()
 
-	textArea := tview.NewTextArea().SetTextStyle(textStyleDefault)
+	textArea := tview.NewTextArea().SetTextStyle(textStyleDefault).SetWordWrap(false)
 
 	borderTextView := tview.NewTextView().SetText("--- result ---")
-	resultTextView := tview.NewTextView().SetTextStyle(textStyleDefault).SetChangedFunc(func() {
+	resultTextView := tview.NewTextView().SetTextStyle(textStyleDefault).SetWordWrap(false).SetChangedFunc(func() {
 		app.Draw()
 	})
 	statusTextView := tview.NewTextView().SetTextStyle(textStyleDefault).SetChangedFunc(func() {
