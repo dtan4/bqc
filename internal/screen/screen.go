@@ -141,7 +141,8 @@ func (s *Screen) Run(ctx context.Context) error {
 				return tcell.NewEventKey(tcell.KeyLeft, 0, tcell.ModNone)
 
 			case tcell.KeyCtrlC:
-				// disable default shutdown key binding
+				s.copyQueryToClipboard()
+
 				return nil
 
 			case tcell.KeyCtrlF:
@@ -268,6 +269,18 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 		s.resultTextView.SetText(result)
 		s.resultTextView.ScrollToBeginning()
 	}()
+}
+
+func (s *Screen) copyQueryToClipboard() {
+	if err := clipboard.WriteAll(s.textArea.GetText()); err != nil {
+		s.statusTextView.
+			SetText(fmt.Sprintf("cannot copy query to clipboard: %s", err)).
+			SetTextStyle(textStyleError)
+
+		return
+	}
+
+	s.statusTextView.SetText("copied query to clipboard").SetTextStyle(textStyleSuceess)
 }
 
 func (s *Screen) copyResultToClipboard() {
