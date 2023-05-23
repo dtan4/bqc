@@ -1,7 +1,11 @@
 package history
 
 import (
+	"bytes"
+	"encoding/gob"
+	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 
@@ -65,6 +69,95 @@ func TestLocalStorageAppendAndList(t *testing.T) {
 	}
 
 	if diff := cmp.Diff(results, got); diff != "" {
+		t.Errorf("data mismatch (-want +got):\n%s", diff)
+	}
+}
+
+// TestLocalStorageCompatibility checks whether the history file with serialized
+// Go objects can read with the current setup (i.e. the latest dependencies) or
+// not.
+func TestLocalStorageCompatibility(t *testing.T) {
+	t.Parallel()
+
+	db, err := bolt.Open(filepath.Join("testdata", "test.db"), 0600, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		db.Close()
+	})
+
+	bucket := "test-bucket"
+	if err := db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte(bucket))
+		return err
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	want := []*bigquery.Result{
+		{
+			Query:               "select 1",
+			TotalBytesProcessed: 0,
+			DryRun:              true,
+			EndTime:             time.Date(2023, 5, 24, 12, 34, 56, 0, time.UTC),
+		},
+		{
+			Query:               "select 1;",
+			TotalBytesProcessed: 12345,
+			DryRun:              false,
+			EndTime:             time.Date(2023, 5, 25, 13, 24, 59, 0, time.UTC),
+		},
+	}
+
+	if os.Getenv("UPDATE") == "1" {
+		err := db.Update(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte(bucket))
+
+			for i, r := range want {
+				var bb bytes.Buffer
+
+				if err := gob.NewEncoder(&bb).Encode(r); err != nil {
+					return err
+				}
+
+				if err := b.Put([]byte(strconv.Itoa(i)), bb.Bytes()); err != nil {
+					return err
+				}
+			}
+
+			return nil
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		return
+	}
+
+	got := []*bigquery.Result{}
+
+	err = db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(bucket))
+		c := b.Cursor()
+
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			var r bigquery.Result
+
+			if err := gob.NewDecoder(bytes.NewBuffer(v)).Decode(&r); err != nil {
+				return err
+			}
+
+			got = append(got, &r)
+		}
+
+		return nil
+	})
+	if err != nil {
+		t.Errorf("want no error, got: %s", err)
+	}
+
+	if diff := cmp.Diff(want, got); diff != "" {
 		t.Errorf("data mismatch (-want +got):\n%s", diff)
 	}
 }
