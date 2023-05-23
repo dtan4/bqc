@@ -31,6 +31,7 @@ type Result struct {
 	Keys                []string
 	Rows                []map[string]bigquery.Value
 	TotalBytesProcessed int64
+	DryRun              bool
 }
 
 func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
@@ -80,11 +81,7 @@ func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
 	}, nil
 }
 
-type DryRunResult struct {
-	TotalBytesProcessed int64
-}
-
-func (c *Client) DryRunQuery(ctx context.Context, query string) (*DryRunResult, error) {
+func (c *Client) DryRunQuery(ctx context.Context, query string) (*Result, error) {
 	q := c.api.Query(query)
 	q.DryRun = true
 
@@ -98,7 +95,8 @@ func (c *Client) DryRunQuery(ctx context.Context, query string) (*DryRunResult, 
 		return nil, fmt.Errorf("get the latest status: %w", err)
 	}
 
-	return &DryRunResult{
+	return &Result{
 		TotalBytesProcessed: s.Statistics.TotalBytesProcessed,
+		DryRun:              true,
 	}, nil
 }
