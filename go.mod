@@ -10,7 +10,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.6.0
 	github.com/google/go-cmp v0.5.9
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/rivo/tview v0.0.0-20230511053024-822bd067b165
+	github.com/rivo/tview v0.0.0-20230525073430-4a1f85bb2219
 	google.golang.org/api v0.124.0
 )
 
