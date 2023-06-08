@@ -100,7 +100,7 @@ func (s *LocalStorage) List() ([]*bigquery.Result, error) {
 	return results, nil
 }
 
-// Use milliseconds as key
+// Use nanoseconds as key
 func (s *LocalStorage) keyFromTimestamp(ts time.Time) []byte {
 	return []byte(strconv.FormatInt(ts.UnixNano(), 10))
 }
