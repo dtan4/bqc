@@ -88,12 +88,6 @@ func TestLocalStorageCompatibility(t *testing.T) {
 	})
 
 	bucket := "test-bucket"
-	if err := db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bucket))
-		return err
-	}); err != nil {
-		t.Fatal(err)
-	}
 
 	want := []*bigquery.Result{
 		{
@@ -111,6 +105,13 @@ func TestLocalStorageCompatibility(t *testing.T) {
 	}
 
 	if os.Getenv("UPDATE") == "1" {
+		if err := db.Update(func(tx *bolt.Tx) error {
+			_, err := tx.CreateBucketIfNotExists([]byte(bucket))
+			return err
+		}); err != nil {
+			t.Fatal(err)
+		}
+
 		err := db.Update(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte(bucket))
 
