@@ -52,10 +52,15 @@ func (s *LocalStorage) Append(result *bigquery.Result) error {
 		return fmt.Errorf("encode result to gob: %w", err)
 	}
 
-	err := s.db.Update(func(tx *bolt.Tx) error {
+	c, err := compressZstd(v.Bytes())
+	if err != nil {
+		return fmt.Errorf("compress history with zstd: %w", err)
+	}
+
+	err = s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(s.bucket)
 
-		return b.Put(s.keyFromTimestamp(s.tsFunc()), v.Bytes())
+		return b.Put(s.keyFromTimestamp(s.tsFunc()), c)
 	})
 	if err != nil {
 		return fmt.Errorf("append: %w", err)
@@ -74,7 +79,12 @@ func (s *LocalStorage) List() ([]*bigquery.Result, error) {
 		for k, v := c.First(); k != nil; k, v = c.Next() {
 			var r bigquery.Result
 
-			if err := gob.NewDecoder(bytes.NewBuffer(v)).Decode(&r); err != nil {
+			uv, err := decompressZstd(v)
+			if err != nil {
+				return fmt.Errorf("decompress history from zstd: %w", err)
+			}
+
+			if err := gob.NewDecoder(bytes.NewBuffer(uv)).Decode(&r); err != nil {
 				return fmt.Errorf("decode result from gob: %w", err)
 			}
 
