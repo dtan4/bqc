@@ -14,12 +14,15 @@ import (
 
 	"github.com/dtan4/bqc/internal/bigquery"
 	"github.com/dtan4/bqc/internal/checkpoint"
+	"github.com/dtan4/bqc/internal/history"
 	"github.com/dtan4/bqc/internal/renderer"
 	"github.com/dtan4/bqc/internal/screen"
 )
 
 const (
 	bigqueryConfigFilename = ".bigqueryrc"
+
+	historyBucket = "history"
 )
 
 var (
@@ -60,7 +63,12 @@ func realMain(args []string) error {
 
 	ckpt := checkpoint.New(filepath.Join(dataDir, "checkpoint"))
 
-	scr := screen.New(client, rdr, ckpt)
+	hs, err := history.NewLocalStorage(filepath.Join(dataDir, "history.db"), historyBucket)
+	if err != nil {
+		return fmt.Errorf("prepare local history storage")
+	}
+
+	scr := screen.New(client, rdr, ckpt, hs)
 
 	if err := scr.Run(ctx); err != nil {
 		return fmt.Errorf("run TUI app: %w", err)

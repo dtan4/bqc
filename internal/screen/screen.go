@@ -12,6 +12,7 @@ import (
 
 	"github.com/dtan4/bqc/internal/bigquery"
 	"github.com/dtan4/bqc/internal/checkpoint"
+	"github.com/dtan4/bqc/internal/history"
 	"github.com/dtan4/bqc/internal/renderer"
 )
 
@@ -35,6 +36,7 @@ type Screen struct {
 	bqClient   *bigquery.Client
 	renderer   *renderer.TableRenderer
 	checkpoint *checkpoint.Checkpoint
+	history    history.Storage
 
 	ctrlXMode bool
 }
@@ -58,7 +60,12 @@ type Screen struct {
 // +----------------------------------------------------------+
 // | statusTextView                | ctrlXTextView (width: 8) |
 // +----------------------------------------------------------+
-func New(bqClient *bigquery.Client, renderer *renderer.TableRenderer, checkpoint *checkpoint.Checkpoint) *Screen {
+func New(
+	bqClient *bigquery.Client,
+	renderer *renderer.TableRenderer,
+	checkpoint *checkpoint.Checkpoint,
+	history history.Storage,
+) *Screen {
 	app := tview.NewApplication()
 
 	textArea := tview.NewTextArea().SetTextStyle(textStyleDefault).SetWordWrap(false)
@@ -96,6 +103,7 @@ func New(bqClient *bigquery.Client, renderer *renderer.TableRenderer, checkpoint
 		bqClient:       bqClient,
 		renderer:       renderer,
 		checkpoint:     checkpoint,
+		history:        history,
 		ctrlXMode:      false,
 	}
 }
@@ -224,6 +232,15 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 
 			result = fmt.Sprintf("This query will process %s of data.", humanize.Bytes(uint64(r.TotalBytesProcessed)))
 
+			if err := s.history.Append(r); err != nil {
+				done <- true
+				s.statusTextView.
+					SetText(err.Error()).
+					SetTextStyle(textStyleError)
+
+				return
+			}
+
 			done <- true
 
 			s.statusTextView.
@@ -246,6 +263,15 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 				done <- true
 				s.statusTextView.
 					SetText(fmt.Sprintf("[ERROR] %scannot render result", msgPrefix)).
+					SetTextStyle(textStyleError)
+
+				return
+			}
+
+			if err := s.history.Append(r); err != nil {
+				done <- true
+				s.statusTextView.
+					SetText(err.Error()).
 					SetTextStyle(textStyleError)
 
 				return

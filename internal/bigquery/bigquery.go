@@ -3,6 +3,7 @@ package bigquery
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"cloud.google.com/go/bigquery"
 	"google.golang.org/api/iterator"
@@ -28,10 +29,12 @@ func (c *Client) Close() error {
 }
 
 type Result struct {
+	Query               string
 	Keys                []string
 	Rows                []map[string]bigquery.Value
 	TotalBytesProcessed int64
 	DryRun              bool
+	EndTime             time.Time
 }
 
 func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
@@ -75,9 +78,11 @@ func (c *Client) RunQuery(ctx context.Context, query string) (*Result, error) {
 	}
 
 	return &Result{
+		Query:               query,
 		Keys:                keys,
 		Rows:                rows,
 		TotalBytesProcessed: s.Statistics.TotalBytesProcessed,
+		EndTime:             s.Statistics.EndTime,
 	}, nil
 }
 
@@ -96,7 +101,9 @@ func (c *Client) DryRunQuery(ctx context.Context, query string) (*Result, error)
 	}
 
 	return &Result{
+		Query:               query,
 		TotalBytesProcessed: s.Statistics.TotalBytesProcessed,
+		EndTime:             s.Statistics.EndTime,
 		DryRun:              true,
 	}, nil
 }
