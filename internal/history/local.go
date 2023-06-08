@@ -2,9 +2,9 @@ package history
 
 import (
 	"bytes"
-	"encoding/binary"
 	"encoding/gob"
 	"fmt"
+	"strconv"
 	"time"
 
 	bolt "go.etcd.io/bbolt"
@@ -92,8 +92,5 @@ func (s *LocalStorage) List() ([]*bigquery.Result, error) {
 
 // Use milliseconds as key
 func (s *LocalStorage) keyFromTimestamp(ts time.Time) []byte {
-	b := make([]byte, binary.MaxVarintLen64)
-	binary.LittleEndian.PutUint64(b, uint64(ts.UnixMilli()))
-
-	return b
+	return []byte(strconv.FormatInt(ts.UnixNano(), 10))
 }

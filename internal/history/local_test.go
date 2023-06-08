@@ -36,11 +36,15 @@ func TestLocalStorageAppendAndList(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	count := 0
+
 	s := &LocalStorage{
 		db:     db,
 		bucket: []byte(bucket),
 		tsFunc: func() time.Time {
-			return time.Now()
+			count += 1
+
+			return time.Date(2023, 5, 24, 12, 34, 56, count, time.UTC)
 		},
 	}
 
