@@ -5,6 +5,7 @@ import (
 	"time"
 
 	bigqueryapi "cloud.google.com/go/bigquery"
+	"cloud.google.com/go/civil"
 
 	"github.com/dtan4/bqc/internal/bigquery"
 )
@@ -19,4 +20,5 @@ func init() {
 	gob.Register(map[string]bigqueryapi.Value{})
 	gob.Register([]bigqueryapi.Value{})
 	gob.Register(time.Time{})
+	gob.Register(civil.Date{})
 }
