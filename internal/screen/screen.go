@@ -25,11 +25,12 @@ var (
 type Screen struct {
 	app *tview.Application
 
-	textArea       *tview.TextArea
-	borderTextView *tview.TextView
-	resultTextView *tview.TextView
-	statusTextView *tview.TextView
-	ctrlXTextView  *tview.TextView
+	textArea          *tview.TextArea
+	borderTextView    *tview.TextView
+	resultTextView    *tview.TextView
+	statusTextView    *tview.TextView
+	ctrlXTextView     *tview.TextView
+	cursorPosTextView *tview.TextView
 
 	pages *tview.Pages
 
@@ -43,23 +44,24 @@ type Screen struct {
 
 // New creates a new TUI screen.
 //
-// +----------------------------------------------------------+
-// | textArea                                                 |
-// |                                                          |
-// |                                                          |
-// |                                                          |
-// |                                                          |
-// +----------------------------------------------------------+
-// | borderTextView (height: 1)                               |
-// +----------------------------------------------------------+
-// | resultTextView                                           |
-// |                                                          |
-// |                                                          |
-// |                                                          |
-// |                                                          |
-// +----------------------------------------------------------+
-// | statusTextView                | ctrlXTextView (width: 8) |
-// +----------------------------------------------------------+
+// +-------------------------------------------------------------------+
+// | textArea                                                          |
+// |                                                                   |
+// |                                                                   |
+// |                                                                   |
+// |                                                                   |
+// +-------------------------------------------------------------------+
+// | borderTextView (height: 1)                                        |
+// +-------------------------------------------------------------------+
+// | resultTextView                                                    |
+// |                                                                   |
+// |                                                                   |
+// |                                                                   |
+// |                                                                   |
+// +-------------------------------------------------------------------+
+// | statusTextView                | ctrlXTextView | cursorPosTextView |
+// |                               | (width: 8)    | (width: 18)       |
+// +-------------------------------------------------------------------+
 func New(
 	bqClient *bigquery.Client,
 	renderer *renderer.TableRenderer,
@@ -80,31 +82,42 @@ func New(
 	ctrlXTextView := tview.NewTextView().SetTextStyle(textStyleDefault.Bold(true)).SetTextAlign(tview.AlignRight).SetChangedFunc(func() {
 		app.Draw()
 	})
+	cursorPosTextView := tview.NewTextView().SetTextStyle(textStyleDefault.Bold(true)).SetTextAlign(tview.AlignRight).SetChangedFunc(func() {
+		app.Draw()
+	})
+
+	textArea.SetMovedFunc(func() {
+		row, col, _, _ := textArea.GetCursor()
+		// row and col starts from 0
+		cursorPosTextView.SetText(fmt.Sprintf("(Ln %d, Col %d)", row+1, col+1))
+	})
 
 	mainView := tview.NewGrid().
 		SetRows(0, 1, 0, 1).
-		SetColumns(0, 8).
+		SetColumns(0, 8, 18).
 		AddItem(textArea, 0, 0, 1, 1, 0, 0, true).
 		AddItem(borderTextView, 1, 0, 1, 1, 0, 0, false).
 		AddItem(resultTextView, 2, 0, 1, 1, 0, 0, false).
 		AddItem(statusTextView, 3, 0, 1, 1, 0, 0, false).
-		AddItem(ctrlXTextView, 3, 1, 1, 1, 0, 0, false)
+		AddItem(ctrlXTextView, 3, 1, 1, 1, 0, 0, false).
+		AddItem(cursorPosTextView, 3, 2, 1, 1, 0, 0, false)
 
 	pages := tview.NewPages().AddAndSwitchToPage("main", mainView, true)
 
 	return &Screen{
-		app:            app,
-		textArea:       textArea,
-		borderTextView: borderTextView,
-		resultTextView: resultTextView,
-		statusTextView: statusTextView,
-		ctrlXTextView:  ctrlXTextView,
-		pages:          pages,
-		bqClient:       bqClient,
-		renderer:       renderer,
-		checkpoint:     checkpoint,
-		history:        history,
-		ctrlXMode:      false,
+		app:               app,
+		textArea:          textArea,
+		borderTextView:    borderTextView,
+		resultTextView:    resultTextView,
+		statusTextView:    statusTextView,
+		ctrlXTextView:     ctrlXTextView,
+		cursorPosTextView: cursorPosTextView,
+		pages:             pages,
+		bqClient:          bqClient,
+		renderer:          renderer,
+		checkpoint:        checkpoint,
+		history:           history,
+		ctrlXMode:         false,
 	}
 }
 
