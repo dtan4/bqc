@@ -158,6 +158,9 @@ func (s *Screen) Run(ctx context.Context) error {
 			return nil
 		} else {
 			switch event.Key() {
+			case tcell.KeyCtrlUnderscore:
+				return tcell.NewEventKey(tcell.KeyCtrlZ, 0, tcell.ModNone)
+
 			case tcell.KeyCtrlB:
 				return tcell.NewEventKey(tcell.KeyLeft, 0, tcell.ModNone)
 
