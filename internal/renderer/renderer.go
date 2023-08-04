@@ -38,3 +38,31 @@ func (r *TableRenderer) Render(result *bigquery.Result) (string, error) {
 
 	return b.String(), nil
 }
+
+type MarkdownRenderer struct{}
+
+var _ Renderer = (*MarkdownRenderer)(nil)
+
+func (r *MarkdownRenderer) Render(result *bigquery.Result) (string, error) {
+	var b bytes.Buffer
+
+	table := tablewriter.NewWriter(&b)
+	table.SetAutoFormatHeaders(false)
+	table.SetAutoWrapText(false)
+	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+	table.SetCenterSeparator("|")
+	table.SetHeader(result.Keys)
+
+	for _, r := range result.Rows {
+		vs := []string{}
+		for _, k := range result.Keys {
+			vs = append(vs, fmt.Sprintf("%v", r[k]))
+		}
+
+		table.Append(vs)
+	}
+
+	table.Render()
+
+	return b.String(), nil
+}
