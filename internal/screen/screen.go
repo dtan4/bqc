@@ -34,12 +34,14 @@ type Screen struct {
 
 	pages *tview.Pages
 
-	bqClient   *bigquery.Client
-	renderer   *renderer.TableRenderer
-	checkpoint *checkpoint.Checkpoint
-	history    history.Storage
+	bqClient         *bigquery.Client
+	defaultRenderer  renderer.Renderer
+	markdownRenderer *renderer.MarkdownRenderer
+	checkpoint       *checkpoint.Checkpoint
+	history          history.Storage
 
-	ctrlXMode bool
+	ctrlXMode  bool
+	lastResult *bigquery.Result
 }
 
 // New creates a new TUI screen.
@@ -64,7 +66,8 @@ type Screen struct {
 // +-------------------------------------------------------------------+
 func New(
 	bqClient *bigquery.Client,
-	renderer *renderer.TableRenderer,
+	defaultRenderer renderer.Renderer,
+	markdownRenderer *renderer.MarkdownRenderer,
 	checkpoint *checkpoint.Checkpoint,
 	history history.Storage,
 ) *Screen {
@@ -114,10 +117,12 @@ func New(
 		cursorPosTextView: cursorPosTextView,
 		pages:             pages,
 		bqClient:          bqClient,
-		renderer:          renderer,
+		defaultRenderer:   defaultRenderer,
+		markdownRenderer:  markdownRenderer,
 		checkpoint:        checkpoint,
 		history:           history,
 		ctrlXMode:         false,
+		lastResult:        nil,
 	}
 }
 
@@ -150,6 +155,9 @@ func (s *Screen) Run(ctx context.Context) error {
 				case 'd':
 					q := s.textArea.GetText()
 					s.runQuery(ctx, q, true)
+
+				case 'm':
+					s.copyResultToClipboardAsMarkdown()
 				}
 			default:
 				// do nothing
@@ -274,7 +282,7 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 				return
 			}
 
-			result, err = s.renderer.Render(r)
+			result, err = s.defaultRenderer.Render(r)
 			if err != nil {
 				done <- true
 				s.statusTextView.
@@ -294,6 +302,8 @@ func (s *Screen) runQuery(ctx context.Context, q string, dryRun bool) {
 			}
 
 			done <- true
+
+			s.lastResult = r
 
 			s.statusTextView.
 				SetText(
@@ -335,4 +345,30 @@ func (s *Screen) copyResultToClipboard() {
 	}
 
 	s.statusTextView.SetText("copied result to clipboard").SetTextStyle(textStyleSuceess)
+}
+
+func (s *Screen) copyResultToClipboardAsMarkdown() {
+	if s.lastResult == nil {
+		s.statusTextView.SetText("nothing to copy").SetTextStyle(textStyleError)
+		return
+	}
+
+	t, err := s.markdownRenderer.Render(s.lastResult)
+	if err != nil {
+		s.statusTextView.
+			SetText(fmt.Sprintf("cannot render result as Markdown table: %s", err)).
+			SetTextStyle(textStyleError)
+
+		return
+	}
+
+	if err := clipboard.WriteAll(t); err != nil {
+		s.statusTextView.
+			SetText(fmt.Sprintf("cannot copy result to clipboard as Markdown table: %s", err)).
+			SetTextStyle(textStyleError)
+
+		return
+	}
+
+	s.statusTextView.SetText("copied result to clipboard as Markdown table").SetTextStyle(textStyleSuceess)
 }
