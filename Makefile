@@ -1,10 +1,12 @@
 NAME := bqc
 
+GO_BUILD_ENVS := CGO_ENABLED=1 CXX=clang++
+
 .DEFAULT_GOAL := build
 
 .PHONY: build
 build:
-	go build -o bin/$(NAME)
+	$(GO_BUILD_ENVS) go build -o bin/$(NAME)
 
 .PHONY: clean
 clean:
@@ -12,8 +14,8 @@ clean:
 
 .PHONY: install
 install:
-	go install -ldflags="-s -w"
+	$(GO_BUILD_ENVS) go install
 
 .PHONY: test
 test:
-	go test -race ./...
+	$(GO_BUILD_ENVS) go test -race ./...

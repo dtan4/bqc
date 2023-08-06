@@ -156,6 +156,9 @@ func (s *Screen) Run(ctx context.Context) error {
 					q := s.textArea.GetText()
 					s.runQuery(ctx, q, true)
 
+				case 'f':
+					s.formatQuery()
+
 				case 'm':
 					s.copyResultToClipboardAsMarkdown()
 				}
@@ -371,4 +374,18 @@ func (s *Screen) copyResultToClipboardAsMarkdown() {
 	}
 
 	s.statusTextView.SetText("copied result to clipboard as Markdown table").SetTextStyle(textStyleSuceess)
+}
+
+func (s *Screen) formatQuery() {
+	formatted, err := bigquery.FormatQuery(s.textArea.GetText())
+	if err != nil {
+		s.statusTextView.
+			SetText(fmt.Sprintf("cannot format query: %s", err)).
+			SetTextStyle(textStyleError)
+
+		return
+	}
+
+	s.textArea.SetText(formatted, true)
+	s.statusTextView.SetText("formatted query").SetTextStyle(textStyleSuceess)
 }
