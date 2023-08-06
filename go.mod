@@ -26,6 +26,7 @@ require (
 	github.com/apache/thrift v0.16.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
+	github.com/goccy/go-zetasql v0.5.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
