@@ -17,7 +17,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/tview v0.0.0-20230814110005-ccc2c8119703
 	go.etcd.io/bbolt v1.3.7
-	google.golang.org/api v0.137.0
+	google.golang.org/api v0.138.0
 )
 
 require (
