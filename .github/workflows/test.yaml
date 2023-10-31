@@ -22,7 +22,7 @@ jobs:
         run: make test
 
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.13.0
+        uses: aquasecurity/trivy-action@0.13.1
         with:
           scan-type: "fs"
           ignore-unfixed: true
