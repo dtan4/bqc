@@ -6,7 +6,7 @@ toolchain go1.21.0
 
 require (
 	cloud.google.com/go v0.110.10
-	cloud.google.com/go/bigquery v1.57.0
+	cloud.google.com/go/bigquery v1.57.1
 	github.com/adrg/xdg v0.4.0
 	github.com/atotto/clipboard v0.1.4
 	github.com/dustin/go-humanize v1.0.1
