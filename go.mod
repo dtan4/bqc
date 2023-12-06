@@ -10,12 +10,12 @@ require (
 	github.com/adrg/xdg v0.4.0
 	github.com/atotto/clipboard v0.1.4
 	github.com/dustin/go-humanize v1.0.1
-	github.com/gdamore/tcell/v2 v2.6.0
+	github.com/gdamore/tcell/v2 v2.6.1-0.20231203215052-2917c3801e73
 	github.com/goccy/go-zetasql v0.5.1
 	github.com/google/go-cmp v0.6.0
 	github.com/klauspost/compress v1.17.4
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/rivo/tview v0.0.0-20231126152417-33a1d271f2b6
+	github.com/rivo/tview v0.0.0-20231206124440-5f078138442e
 	go.etcd.io/bbolt v1.3.8
 	google.golang.org/api v0.153.0
 )
