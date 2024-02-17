@@ -10,7 +10,7 @@ require (
 	github.com/adrg/xdg v0.4.0
 	github.com/atotto/clipboard v0.1.4
 	github.com/dustin/go-humanize v1.0.1
-	github.com/gdamore/tcell/v2 v2.7.0
+	github.com/gdamore/tcell/v2 v2.7.1
 	github.com/goccy/go-zetasql v0.5.5
 	github.com/google/go-cmp v0.6.0
 	github.com/klauspost/compress v1.17.6
