@@ -16,7 +16,7 @@ require (
 	github.com/klauspost/compress v1.17.7
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/tview v0.0.0-20240204151237-861aa94d61c8
-	go.etcd.io/bbolt v1.3.8
+	go.etcd.io/bbolt v1.3.9
 	google.golang.org/api v0.167.0
 )
 
