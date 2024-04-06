@@ -15,7 +15,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/klauspost/compress v1.17.7
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/rivo/tview v0.0.0-20240404161134-dfc1d8680fec
+	github.com/rivo/tview v0.0.0-20240406141410-79d4cc321256
 	go.etcd.io/bbolt v1.3.9
 	google.golang.org/api v0.172.0
 )
