@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.0
 
 require (
-	cloud.google.com/go v0.112.2
+	cloud.google.com/go v0.113.0
 	cloud.google.com/go/bigquery v1.61.0
 	github.com/adrg/xdg v0.4.0
 	github.com/atotto/clipboard v0.1.4
@@ -63,8 +63,8 @@ require (
 	golang.org/x/tools v0.20.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/genproto v0.0.0-20240401170217-c3f982113cda // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240415180920-8c6c420018be // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240429193739-8cf5692501f6 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240506185236-b8a5c65736ae // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240506185236-b8a5c65736ae // indirect
 	google.golang.org/grpc v1.63.2 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 )
