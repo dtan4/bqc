@@ -13,7 +13,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/goccy/go-zetasql v0.5.5
 	github.com/google/go-cmp v0.6.0
-	github.com/klauspost/compress v1.17.8
+	github.com/klauspost/compress v1.17.9
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/tview v0.0.0-20240524063012-037df494fb76
 	go.etcd.io/bbolt v1.3.10
