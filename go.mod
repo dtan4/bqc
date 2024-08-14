@@ -17,11 +17,11 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/tview v0.0.0-20240807205129-e4c497cc59ed
 	go.etcd.io/bbolt v1.3.10
-	google.golang.org/api v0.191.0
+	google.golang.org/api v0.192.0
 )
 
 require (
-	cloud.google.com/go/auth v0.8.0 // indirect
+	cloud.google.com/go/auth v0.8.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.3 // indirect
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
 	cloud.google.com/go/iam v1.1.12 // indirect
