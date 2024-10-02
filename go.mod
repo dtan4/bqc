@@ -6,7 +6,7 @@ toolchain go1.21.0
 
 require (
 	cloud.google.com/go v0.115.1
-	cloud.google.com/go/bigquery v1.63.0
+	cloud.google.com/go/bigquery v1.63.1
 	github.com/adrg/xdg v0.5.0
 	github.com/atotto/clipboard v0.1.4
 	github.com/dustin/go-humanize v1.0.1
@@ -24,7 +24,7 @@ require (
 	cloud.google.com/go/auth v0.9.5 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.4 // indirect
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
-	cloud.google.com/go/iam v1.2.0 // indirect
+	cloud.google.com/go/iam v1.2.1 // indirect
 	github.com/apache/arrow/go/v15 v15.0.2 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
