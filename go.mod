@@ -5,7 +5,7 @@ go 1.21
 toolchain go1.21.0
 
 require (
-	cloud.google.com/go v0.115.1
+	cloud.google.com/go v0.116.0
 	cloud.google.com/go/bigquery v1.63.1
 	github.com/adrg/xdg v0.5.0
 	github.com/atotto/clipboard v0.1.4
