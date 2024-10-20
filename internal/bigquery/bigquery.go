@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/bigquery"
-	"github.com/goccy/go-zetasql"
 	"google.golang.org/api/iterator"
 )
 
@@ -107,13 +106,4 @@ func (c *Client) DryRunQuery(ctx context.Context, query string) (*Result, error)
 		EndTime:             s.Statistics.EndTime,
 		DryRun:              true,
 	}, nil
-}
-
-func FormatQuery(q string) (string, error) {
-	formatted, err := zetasql.FormatSQL(q)
-	if err != nil {
-		return "", fmt.Errorf("format SQL: %w", err)
-	}
-
-	return formatted, nil
 }
