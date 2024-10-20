@@ -73,6 +73,7 @@ func realMain(args []string) error {
 	if err != nil {
 		return fmt.Errorf("prepare local history storage: %w", err)
 	}
+	defer hs.Close()
 
 	scr := screen.New(client, rdr, mrdr, trdr, ckpt, hs)
 
