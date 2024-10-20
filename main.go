@@ -61,6 +61,7 @@ func realMain(args []string) error {
 
 	rdr := &renderer.TableRenderer{}
 	mrdr := &renderer.MarkdownRenderer{}
+	trdr := &renderer.TSVRenderer{}
 
 	ckpt := checkpoint.New(filepath.Join(dataDir, "checkpoint"))
 
@@ -69,7 +70,7 @@ func realMain(args []string) error {
 		return fmt.Errorf("prepare local history storage")
 	}
 
-	scr := screen.New(client, rdr, mrdr, ckpt, hs)
+	scr := screen.New(client, rdr, mrdr, trdr, ckpt, hs)
 
 	if err := scr.Run(ctx); err != nil {
 		return fmt.Errorf("run TUI app: %w", err)

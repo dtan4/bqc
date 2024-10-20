@@ -37,6 +37,7 @@ type Screen struct {
 	bqClient         *bigquery.Client
 	defaultRenderer  renderer.Renderer
 	markdownRenderer *renderer.MarkdownRenderer
+	tsvRenderer      *renderer.TSVRenderer
 	checkpoint       *checkpoint.Checkpoint
 	history          history.Storage
 
@@ -68,6 +69,7 @@ func New(
 	bqClient *bigquery.Client,
 	defaultRenderer renderer.Renderer,
 	markdownRenderer *renderer.MarkdownRenderer,
+	tsvRenderer *renderer.TSVRenderer,
 	checkpoint *checkpoint.Checkpoint,
 	history history.Storage,
 ) *Screen {
@@ -119,6 +121,7 @@ func New(
 		bqClient:          bqClient,
 		defaultRenderer:   defaultRenderer,
 		markdownRenderer:  markdownRenderer,
+		tsvRenderer:       tsvRenderer,
 		checkpoint:        checkpoint,
 		history:           history,
 		ctrlXMode:         false,
@@ -158,6 +161,9 @@ func (s *Screen) Run(ctx context.Context) error {
 
 				case 'm':
 					s.copyResultToClipboardAsMarkdown()
+
+				case 't':
+					s.copyResultToClipboardAsTSV()
 				}
 			default:
 				// do nothing
@@ -371,4 +377,30 @@ func (s *Screen) copyResultToClipboardAsMarkdown() {
 	}
 
 	s.statusTextView.SetText("copied result to clipboard as Markdown table").SetTextStyle(textStyleSuceess)
+}
+
+func (s *Screen) copyResultToClipboardAsTSV() {
+	if s.lastResult == nil {
+		s.statusTextView.SetText("nothing to copy").SetTextStyle(textStyleError)
+		return
+	}
+
+	t, err := s.tsvRenderer.Render(s.lastResult)
+	if err != nil {
+		s.statusTextView.
+			SetText(fmt.Sprintf("cannot render result as TSV: %s", err)).
+			SetTextStyle(textStyleError)
+
+		return
+	}
+
+	if err := clipboard.WriteAll(t); err != nil {
+		s.statusTextView.
+			SetText(fmt.Sprintf("cannot copy result to clipboard as TSV: %s", err)).
+			SetTextStyle(textStyleError)
+
+		return
+	}
+
+	s.statusTextView.SetText("copied result to clipboard as TSV").SetTextStyle(textStyleSuceess)
 }
