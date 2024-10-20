@@ -1,8 +1,8 @@
 module github.com/dtan4/bqc
 
-go 1.21
+go 1.22
 
-toolchain go1.21.0
+toolchain go1.23.2
 
 require (
 	cloud.google.com/go v0.116.0
@@ -15,7 +15,7 @@ require (
 	github.com/klauspost/compress v1.17.11
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/tview v0.0.0-20241016194538-c5e4fb24af13
-	go.etcd.io/bbolt v1.3.10
+	go.etcd.io/bbolt v1.3.11
 	google.golang.org/api v0.201.0
 )
 
