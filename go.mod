@@ -11,7 +11,6 @@ require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gdamore/tcell/v2 v2.7.4
-	github.com/goccy/go-zetasql v0.5.5
 	github.com/google/go-cmp v0.6.0
 	github.com/klauspost/compress v1.17.11
 	github.com/olekukonko/tablewriter v0.0.5
