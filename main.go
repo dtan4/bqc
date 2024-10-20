@@ -63,11 +63,15 @@ func realMain(args []string) error {
 	mrdr := &renderer.MarkdownRenderer{}
 	trdr := &renderer.TSVRenderer{}
 
+	if err := os.MkdirAll(dataDir, 0755); err != nil {
+		return fmt.Errorf("create data dir: %s: %w", dataDir, err)
+	}
+
 	ckpt := checkpoint.New(filepath.Join(dataDir, "checkpoint"))
 
 	hs, err := history.NewLocalStorage(filepath.Join(dataDir, "history.db"), historyBucket)
 	if err != nil {
-		return fmt.Errorf("prepare local history storage")
+		return fmt.Errorf("prepare local history storage: %w", err)
 	}
 
 	scr := screen.New(client, rdr, mrdr, trdr, ckpt, hs)
