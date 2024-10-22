@@ -15,7 +15,6 @@ import (
 	"github.com/dtan4/bqc/internal/bigquery"
 	"github.com/dtan4/bqc/internal/checkpoint"
 	"github.com/dtan4/bqc/internal/history"
-	"github.com/dtan4/bqc/internal/renderer"
 	"github.com/dtan4/bqc/internal/screen"
 )
 
@@ -59,10 +58,6 @@ func realMain(args []string) error {
 	}
 	defer client.Close()
 
-	rdr := &renderer.TableRenderer{}
-	mrdr := &renderer.MarkdownRenderer{}
-	trdr := &renderer.TSVRenderer{}
-
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		return fmt.Errorf("create data dir: %s: %w", dataDir, err)
 	}
@@ -75,7 +70,7 @@ func realMain(args []string) error {
 	}
 	defer hs.Close()
 
-	scr := screen.New(client, rdr, mrdr, trdr, ckpt, hs)
+	scr := screen.New(client, ckpt, hs)
 
 	if err := scr.Run(ctx); err != nil {
 		return fmt.Errorf("run TUI app: %w", err)
