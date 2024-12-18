@@ -7,7 +7,6 @@
     "gomodTidy"
   ],
   "ignoreDeps": [
-    "go",
     "google.golang.org/genproto"
   ],
   "packageRules": [
@@ -21,8 +20,5 @@
       "automerge": true,
       "automergeType": "branch"
     }
-  ],
-  "constraints": {
-    "go": "1.21"
-  }
+  ]
 }
