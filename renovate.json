@@ -12,6 +12,10 @@
   ],
   "packageRules": [
     {
+      "matchDatasources": ["golang-version"],
+      "rangeStrategy": "bump"
+    },
+    {
       "groupName": "all non-major Go dependencies",
       "groupSlug": "all-minor-patch-gomod",
       "matchManagers": [
@@ -24,7 +28,10 @@
         "digest"
       ],
       "automerge": true,
-      "automergeType": "branch"
+      "automergeType": "branch",
+      "matchPackageNames": [
+        "!go"
+      ]
     },
     {
       "groupName": "all non-major GitHub Actions dependencies",
@@ -49,10 +56,7 @@
         "digest"
       ],
       "automerge": true,
-      "automergeType": "branch",
-      "matchPackageNames": [
-        "!go"
-      ]
+      "automergeType": "branch"
     }
   ]
 }
