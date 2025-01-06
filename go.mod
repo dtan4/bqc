@@ -3,7 +3,7 @@ module github.com/dtan4/bqc
 go 1.23.4
 
 require (
-	cloud.google.com/go v0.117.0
+	cloud.google.com/go v0.118.0
 	cloud.google.com/go/bigquery v1.65.0
 	github.com/adrg/xdg v0.5.3
 	github.com/atotto/clipboard v0.1.4
@@ -59,6 +59,6 @@ require (
 	google.golang.org/genproto v0.0.0-20241118233622-e639e219e697 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241118233622-e639e219e697 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241209162323-e6fa225c2576 // indirect
-	google.golang.org/grpc v1.67.1 // indirect
+	google.golang.org/grpc v1.67.3 // indirect
 	google.golang.org/protobuf v1.35.2 // indirect
 )
