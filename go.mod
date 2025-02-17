@@ -1,6 +1,6 @@
 module github.com/dtan4/bqc
 
-go 1.23.6
+go 1.24.0
 
 require (
 	cloud.google.com/go v0.118.0
