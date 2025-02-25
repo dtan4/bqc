@@ -3,18 +3,18 @@ module github.com/dtan4/bqc
 go 1.24.0
 
 require (
-	cloud.google.com/go v0.118.0
-	cloud.google.com/go/bigquery v1.65.0
+	cloud.google.com/go v0.118.3
+	cloud.google.com/go/bigquery v1.66.2
 	github.com/adrg/xdg v0.5.3
 	github.com/atotto/clipboard v0.1.4
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gdamore/tcell/v2 v2.8.1
-	github.com/google/go-cmp v0.6.0
-	github.com/klauspost/compress v1.17.11
+	github.com/google/go-cmp v0.7.0
+	github.com/klauspost/compress v1.18.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/rivo/tview v0.0.0-20241227133733-17b7edb88c57
-	go.etcd.io/bbolt v1.3.11
-	google.golang.org/api v0.217.0
+	go.etcd.io/bbolt v1.4.0
+	google.golang.org/api v0.223.0
 )
 
 require (
