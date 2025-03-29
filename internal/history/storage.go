@@ -21,4 +21,5 @@ func init() {
 	gob.Register([]bigqueryapi.Value{})
 	gob.Register(time.Time{})
 	gob.Register(civil.Date{})
+	gob.Register(civil.DateTime{})
 }
