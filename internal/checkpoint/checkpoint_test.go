@@ -12,13 +12,7 @@ import (
 func TestSave(t *testing.T) {
 	t.Parallel()
 
-	d, err := os.MkdirTemp("", "testSave")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(d)
-
-	filename := filepath.Join(d, "checkpoint.ckpt")
+	filename := filepath.Join(t.TempDir(), "checkpoint.ckpt")
 
 	ckpt := &Checkpoint{
 		filename:    filename,
@@ -45,13 +39,7 @@ func TestSave(t *testing.T) {
 func TestSave_createDir(t *testing.T) {
 	t.Parallel()
 
-	d, err := os.MkdirTemp("", "testSave_createDir")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll(d)
-
-	filename := filepath.Join(d, "directory", "does", "not", "exist", "checkpoint.ckpt")
+	filename := filepath.Join(t.TempDir(), "directory", "does", "not", "exist", "checkpoint.ckpt")
 
 	ckpt := &Checkpoint{
 		filename:    filename,
