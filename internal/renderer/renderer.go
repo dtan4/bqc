@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 
 	"github.com/dtan4/bqc/internal/bigquery"
 )
@@ -21,10 +23,50 @@ var _ Renderer = (*TableRenderer)(nil)
 func (r *TableRenderer) Render(result *bigquery.Result) (string, error) {
 	var b bytes.Buffer
 
-	table := tablewriter.NewWriter(&b)
-	table.SetAutoFormatHeaders(false)
-	table.SetAutoWrapText(false)
-	table.SetHeader(result.Keys)
+	ss := tw.NewSymbolCustom("Table").
+		WithRow("-").
+		WithColumn("|").
+		WithTopLeft("+").
+		WithTopMid("+").
+		WithTopRight("+").
+		WithMidLeft("+").
+		WithCenter("+").
+		WithMidRight("+").
+		WithBottomLeft("+").
+		WithBottomMid("+").
+		WithBottomRight("+")
+
+	table := tablewriter.NewTable(
+		&b,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(tw.Rendition{
+				Settings: tw.Settings{
+					Separators: tw.Separators{
+						BetweenColumns: tw.On,
+						BetweenRows:    tw.On,
+					},
+				},
+				Symbols: ss,
+			}),
+		),
+		tablewriter.WithConfig(tablewriter.Config{
+			Header: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					AutoWrap: tw.WrapNone,
+				},
+			},
+			Row: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					Alignment: tw.AlignRight,
+				},
+			},
+		}),
+	)
+	table.Configure(func(c *tablewriter.Config) {
+		c.Header.Formatting.AutoFormat = false
+	})
+
+	table.Header(result.Keys)
 
 	for _, r := range result.Rows {
 		vs := []string{}
@@ -47,12 +89,57 @@ var _ Renderer = (*MarkdownRenderer)(nil)
 func (r *MarkdownRenderer) Render(result *bigquery.Result) (string, error) {
 	var b bytes.Buffer
 
-	table := tablewriter.NewWriter(&b)
-	table.SetAutoFormatHeaders(false)
-	table.SetAutoWrapText(false)
-	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-	table.SetCenterSeparator("|")
-	table.SetHeader(result.Keys)
+	ss := tw.NewSymbolCustom("Table").
+		WithRow("-").
+		WithColumn("|").
+		WithTopLeft("|").
+		WithTopMid("|").
+		WithTopRight("|").
+		WithMidLeft("|").
+		WithCenter("|").
+		WithMidRight("|").
+		WithBottomLeft("|").
+		WithBottomMid("|").
+		WithBottomRight("|")
+
+	table := tablewriter.NewTable(
+		&b,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(tw.Rendition{
+				Settings: tw.Settings{
+					Separators: tw.Separators{
+						BetweenColumns: tw.On,
+						BetweenRows:    tw.Off,
+					},
+				},
+				Symbols: ss,
+				Borders: tw.Border{
+					Left:   tw.On,
+					Top:    tw.Off,
+					Right:  tw.On,
+					Bottom: tw.Off,
+				},
+			}),
+		),
+		tablewriter.WithConfig(tablewriter.Config{
+			Header: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					AutoWrap:  tw.WrapNone,
+					Alignment: tw.AlignCenter,
+				},
+			},
+			Row: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					Alignment: tw.AlignRight,
+				},
+			},
+		}),
+	)
+	table.Configure(func(c *tablewriter.Config) {
+		c.Header.Formatting.AutoFormat = false
+	})
+
+	table.Header(result.Keys)
 
 	for _, r := range result.Rows {
 		vs := []string{}
