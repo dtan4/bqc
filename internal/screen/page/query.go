@@ -135,7 +135,7 @@ func (q *Query) Init() error {
 		// ignore error
 		query = ""
 	}
-	q.textArea.SetText(query, true)
+	q.textArea.SetText(query, false)
 
 	q.bindKeys()
 
