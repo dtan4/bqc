@@ -63,7 +63,7 @@ func (r *TableRenderer) Render(result *bigquery.Result) (string, error) {
 		}),
 	)
 	table.Configure(func(c *tablewriter.Config) {
-		c.Header.Formatting.AutoFormat = false
+		c.Header.Formatting.AutoFormat = tw.Off
 	})
 
 	table.Header(result.Keys)
@@ -136,7 +136,7 @@ func (r *MarkdownRenderer) Render(result *bigquery.Result) (string, error) {
 		}),
 	)
 	table.Configure(func(c *tablewriter.Config) {
-		c.Header.Formatting.AutoFormat = false
+		c.Header.Formatting.AutoFormat = tw.Off
 	})
 
 	table.Header(result.Keys)
