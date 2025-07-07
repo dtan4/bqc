@@ -3,7 +3,7 @@ module github.com/dtan4/bqc
 go 1.24.4
 
 require (
-	cloud.google.com/go v0.121.2
+	cloud.google.com/go v0.121.3
 	cloud.google.com/go/bigquery v1.69.0
 	github.com/adrg/xdg v0.5.3
 	github.com/atotto/clipboard v0.1.4
@@ -11,10 +11,10 @@ require (
 	github.com/gdamore/tcell/v2 v2.8.1
 	github.com/google/go-cmp v0.7.0
 	github.com/klauspost/compress v1.18.0
-	github.com/olekukonko/tablewriter v1.0.7
-	github.com/rivo/tview v0.0.0-20250501113434-0c592cd31026
-	go.etcd.io/bbolt v1.4.1
-	google.golang.org/api v0.238.0
+	github.com/olekukonko/tablewriter v1.0.8
+	github.com/rivo/tview v0.0.0-20250625164341-a4a78f1e05cb
+	go.etcd.io/bbolt v1.4.2
+	google.golang.org/api v0.240.0
 )
 
 require (
@@ -63,7 +63,7 @@ require (
 	golang.org/x/tools v0.33.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto v0.0.0-20250505200425-f936aa4a68b2 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250505200425-f936aa4a68b2 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250512202823-5a2f75b736a9 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/grpc v1.73.0 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
