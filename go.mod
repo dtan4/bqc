@@ -3,7 +3,7 @@ module github.com/dtan4/bqc
 go 1.24.5
 
 require (
-	cloud.google.com/go v0.121.3
+	cloud.google.com/go v0.121.4
 	cloud.google.com/go/bigquery v1.69.0
 	github.com/adrg/xdg v0.5.3
 	github.com/atotto/clipboard v0.1.4
@@ -14,7 +14,7 @@ require (
 	github.com/olekukonko/tablewriter v1.0.8
 	github.com/rivo/tview v0.0.0-20250625164341-a4a78f1e05cb
 	go.etcd.io/bbolt v1.4.2
-	google.golang.org/api v0.241.0
+	google.golang.org/api v0.242.0
 )
 
 require (
