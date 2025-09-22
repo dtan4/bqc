@@ -11,7 +11,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.9.0
 	github.com/google/go-cmp v0.7.0
 	github.com/klauspost/compress v1.18.0
-	github.com/olekukonko/tablewriter v1.0.9
+	github.com/olekukonko/tablewriter v1.1.0
 	github.com/rivo/tview v0.42.0
 	go.etcd.io/bbolt v1.4.3
 	google.golang.org/api v0.249.0
