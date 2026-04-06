@@ -4,7 +4,7 @@ go 1.26.1
 
 require (
 	cloud.google.com/go v0.123.0
-	cloud.google.com/go/bigquery v1.74.0
+	cloud.google.com/go/bigquery v1.75.0
 	github.com/adrg/xdg v0.5.3
 	github.com/atotto/clipboard v0.1.4
 	github.com/dustin/go-humanize v1.0.1
@@ -14,7 +14,7 @@ require (
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/rivo/tview v0.42.0
 	go.etcd.io/bbolt v1.4.3
-	google.golang.org/api v0.273.0
+	google.golang.org/api v0.274.0
 )
 
 require (
