@@ -4,7 +4,7 @@ go 1.27.3
 
 require (
 	cloud.google.com/go v0.123.0
-	cloud.google.com/go/bigquery v1.85.0
+	cloud.google.com/go/bigquery v1.86.0
 	github.com/adrg/xdg v0.5.3
 	github.com/atotto/clipboard v0.1.4
 	github.com/dustin/go-humanize v1.1.0
@@ -14,7 +14,7 @@ require (
 	github.com/olekukonko/tablewriter v1.1.5
 	github.com/rivo/tview v0.42.0
 	go.etcd.io/bbolt v1.5.0
-	google.golang.org/api v0.304.0
+	google.golang.org/api v0.308.0
 )
 
 require (
@@ -69,7 +69,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto v0.0.0-20260715232425-e75dac1f907d // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260715232425-e75dac1f907d // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20261005182115-fad411399dd8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261019180522-ce908d29299b // indirect
 	google.golang.org/grpc v1.84.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
 )
